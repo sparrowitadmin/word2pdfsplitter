@@ -164,6 +164,90 @@ header p {
     color: #333;
 }
 
+/* Bulk Configuration */
+.bulk-config {
+    background: #f8f9ff;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.bulk-config h3 {
+    color: #667eea;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.bulk-input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.bulk-input-row label {
+    font-weight: 600;
+    color: #333;
+}
+
+.num-splits-input {
+    width: 100px;
+    padding: 8px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 4px;
+    font-size: 0.95em;
+}
+
+.bulk-paste-section {
+    margin-top: 15px;
+}
+
+.bulk-paste-section label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.paste-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    resize: vertical;
+    margin-bottom: 10px;
+}
+
+.paste-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.bulk-status {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 6px;
+    display: none;
+}
+
+.bulk-status.success {
+    background: #c6f6d5;
+    color: #22543d;
+    border: 1px solid #9ae6b4;
+    display: block;
+}
+
+.bulk-status.error {
+    background: #fed7d7;
+    color: #742a2a;
+    border: 1px solid #fc8181;
+    display: block;
+}
+
 /* Table */
 .table-controls {
     margin-bottom: 15px;

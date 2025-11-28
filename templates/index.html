@@ -37,6 +37,26 @@
                 <p><strong>Document Pages:</strong> <span id="page-count">0</span></p>
             </div>
 
+            <!-- Bulk Configuration Section -->
+            <div class="bulk-config">
+                <h3>Bulk Configuration</h3>
+                <p class="help-text">Enter the number of splits and paste data from Excel (tab-separated columns: Filename, Start Page, End Page)</p>
+                
+                <div class="bulk-input-row">
+                    <label for="num-splits">Number of Splits:</label>
+                    <input type="number" id="num-splits" min="1" max="100" value="3" class="num-splits-input">
+                    <button class="btn btn-secondary" onclick="generateRows()">Generate Rows</button>
+                </div>
+
+                <div class="bulk-paste-section">
+                    <label for="paste-data">Paste Excel Data:</label>
+                    <textarea id="paste-data" class="paste-textarea" placeholder="Paste Excel data here (tab-separated):&#10;filename1&#9;1&#9;5&#10;filename2&#9;6&#9;10&#10;filename3&#9;11&#9;15"></textarea>
+                    <button class="btn btn-primary" onclick="applyPastedData()">Apply Pasted Data</button>
+                </div>
+
+                <div id="bulk-status" class="bulk-status"></div>
+            </div>
+
             <div class="table-controls">
                 <button class="btn btn-secondary" onclick="addSplitRow()">+ Add Split</button>
             </div>

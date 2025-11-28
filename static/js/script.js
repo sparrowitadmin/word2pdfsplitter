@@ -107,6 +107,132 @@ async function uploadFile(file) {
     }
 }
 
+// Generate multiple empty rows
+function generateRows() {
+    const numSplits = parseInt(document.getElementById('num-splits').value);
+    const bulkStatus = document.getElementById('bulk-status');
+    
+    if (!numSplits || numSplits < 1 || numSplits > 100) {
+        bulkStatus.className = 'bulk-status error';
+        bulkStatus.textContent = 'Please enter a valid number between 1 and 100';
+        return;
+    }
+    
+    // Clear existing rows
+    document.getElementById('splits-tbody').innerHTML = '';
+    
+    // Generate new rows
+    for (let i = 0; i < numSplits; i++) {
+        addSplitRow();
+    }
+    
+    bulkStatus.className = 'bulk-status success';
+    bulkStatus.textContent = `Successfully generated ${numSplits} empty row(s). You can now fill them in or paste data.`;
+}
+
+// Parse and apply pasted Excel data
+function applyPastedData() {
+    const pasteData = document.getElementById('paste-data').value.trim();
+    const bulkStatus = document.getElementById('bulk-status');
+    
+    if (!pasteData) {
+        bulkStatus.className = 'bulk-status error';
+        bulkStatus.textContent = 'Please paste some data first';
+        return;
+    }
+    
+    try {
+        // Split by newlines and parse each row
+        const lines = pasteData.split('\n').filter(line => line.trim());
+        
+        if (lines.length === 0) {
+            bulkStatus.className = 'bulk-status error';
+            bulkStatus.textContent = 'No valid data found';
+            return;
+        }
+        
+        // Clear existing rows
+        const tbody = document.getElementById('splits-tbody');
+        tbody.innerHTML = '';
+        
+        let successCount = 0;
+        let errors = [];
+        
+        // Process each line
+        lines.forEach((line, index) => {
+            // Split by tab or multiple spaces
+            const parts = line.split(/\t+|\s{2,}/).map(p => p.trim()).filter(p => p);
+            
+            if (parts.length >= 3) {
+                const filename = parts[0];
+                const startPage = parseInt(parts[1]);
+                const endPage = parseInt(parts[2]);
+                
+                // Validate
+                if (!filename) {
+                    errors.push(`Row ${index + 1}: Empty filename`);
+                    return;
+                }
+                
+                if (isNaN(startPage) || isNaN(endPage)) {
+                    errors.push(`Row ${index + 1}: Invalid page numbers`);
+                    return;
+                }
+                
+                if (startPage < 1 || endPage < 1) {
+                    errors.push(`Row ${index + 1}: Page numbers must be greater than 0`);
+                    return;
+                }
+                
+                if (startPage > endPage) {
+                    errors.push(`Row ${index + 1}: Start page cannot be greater than end page`);
+                    return;
+                }
+                
+                if (endPage > totalPages) {
+                    errors.push(`Row ${index + 1}: End page (${endPage}) exceeds document length (${totalPages})`);
+                    return;
+                }
+                
+                // Add row with data
+                const row = tbody.insertRow();
+                const cleanFilename = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
+                
+                row.innerHTML = `
+                    <td><input type="text" value="${cleanFilename}"></td>
+                    <td><input type="number" min="1" max="${totalPages}" value="${startPage}" onchange="validatePageRange(this)"></td>
+                    <td><input type="number" min="1" max="${totalPages}" value="${endPage}" onchange="validatePageRange(this)"></td>
+                    <td><button class="btn btn-danger" onclick="removeSplitRow(this)">Remove</button></td>
+                `;
+                
+                successCount++;
+            } else {
+                errors.push(`Row ${index + 1}: Invalid format (need 3 columns: filename, start, end)`);
+            }
+        });
+        
+        // Show results
+        if (successCount > 0) {
+            bulkStatus.className = 'bulk-status success';
+            bulkStatus.textContent = `Successfully imported ${successCount} split configuration(s) from pasted data.`;
+            
+            if (errors.length > 0) {
+                bulkStatus.textContent += ` (${errors.length} row(s) skipped due to errors)`;
+            }
+            
+            // Clear the textarea
+            document.getElementById('paste-data').value = '';
+        } else {
+            bulkStatus.className = 'bulk-status error';
+            bulkStatus.textContent = 'Failed to import data. Errors: ' + errors.join('; ');
+        }
+        
+    } catch (error) {
+        bulkStatus.className = 'bulk-status error';
+        bulkStatus.textContent = 'Error parsing data: ' + error.message;
+    }
+}
+
 // Add a new split row to the table
 function addSplitRow() {
     const tbody = document.getElementById('splits-tbody');
