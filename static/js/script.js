@@ -1,33 +1,42 @@
 // Global variables
 let sessionId = null;
 let totalPages = 0;
+let fileInput, uploadArea, uploadStatus;
 
-// File input handling
-const fileInput = document.getElementById('file-input');
-const uploadArea = document.getElementById('upload-area');
-const uploadStatus = document.getElementById('upload-status');
+// Initialize after DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // File input handling
+    fileInput = document.getElementById('file-input');
+    uploadArea = document.getElementById('upload-area');
+    uploadStatus = document.getElementById('upload-status');
 
-fileInput.addEventListener('change', handleFileSelect);
-
-// Drag and drop
-uploadArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadArea.classList.add('dragover');
-});
-
-uploadArea.addEventListener('dragleave', () => {
-    uploadArea.classList.remove('dragover');
-});
-
-uploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadArea.classList.remove('dragover');
-    
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-        fileInput.files = files;
-        handleFileSelect();
+    if (!fileInput || !uploadArea || !uploadStatus) {
+        console.error('Required elements not found');
+        return;
     }
+
+    fileInput.addEventListener('change', handleFileSelect);
+
+    // Drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFileSelect();
+        }
+    });
 });
 
 // Handle file selection
