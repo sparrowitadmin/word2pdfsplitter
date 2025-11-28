@@ -151,6 +151,6 @@ For issues or questions:
 
 ---
 
-**Made with ❤️ using Flask and Python**
+**Made with Passion @ SurveySparrow**
 
 [Try it now →](https://word2pdfsplitter.up.railway.app/)
