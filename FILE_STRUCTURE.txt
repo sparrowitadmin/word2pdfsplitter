@@ -1,0 +1,139 @@
+Word to PDF Splitter - Project File Structure
+==============================================
+
+sibi_project/
+│
+├── 📄 Core Application Files
+│   ├── app.py                    - Flask backend application (main server)
+│   ├── requirements.txt          - Python package dependencies
+│   └── .gitignore               - Git ignore configuration
+│
+├── 📚 Documentation Files
+│   ├── README.md                 - Complete project documentation
+│   ├── QUICKSTART.md            - 5-minute setup guide
+│   ├── USAGE_EXAMPLES.md        - Practical usage examples
+│   ├── PROJECT_OVERVIEW.md      - Technical architecture overview
+│   └── FILE_STRUCTURE.txt       - This file
+│
+├── 🎨 Frontend Files
+│   ├── templates/
+│   │   └── index.html           - Main application HTML template
+│   │
+│   └── static/
+│       ├── css/
+│       │   └── style.css        - Application styles and animations
+│       └── js/
+│           └── script.js        - Frontend JavaScript logic
+│
+├── 🧪 Testing & Samples
+│   ├── create_sample.py         - Script to generate sample document
+│   └── sample_document.docx     - 6-page sample Word document
+│
+└── 🔧 Environment (generated)
+    └── venv/                    - Python virtual environment
+        ├── bin/                 - Executables
+        ├── lib/                 - Installed packages
+        └── pyvenv.cfg          - Environment configuration
+
+==============================================
+Total Project Files: 11 core files + documentation
+Lines of Code: ~500 Python + ~400 JavaScript + ~600 CSS
+==============================================
+
+File Descriptions:
+------------------
+
+1. app.py (Main Backend - ~200 lines)
+   - Flask web server setup
+   - File upload handling with validation
+   - Word to PDF conversion using docx2pdf
+   - PDF splitting logic using pypdf
+   - Error handling and response formatting
+   - Temporary file management
+
+2. templates/index.html (~160 lines)
+   - Single-page application layout
+   - File upload interface with drag-and-drop
+   - Dynamic table for split configurations
+   - Results display section
+   - Loading overlay for async operations
+
+3. static/css/style.css (~600 lines)
+   - Modern gradient design
+   - Responsive layout rules
+   - Interactive button animations
+   - Table and form styling
+   - Loading spinner animations
+   - Mobile-responsive breakpoints
+
+4. static/js/script.js (~400 lines)
+   - File upload handling
+   - Dynamic table row management
+   - Form validation
+   - AJAX communication with backend
+   - Real-time page range validation
+   - Results rendering
+   - State management
+
+5. requirements.txt
+   - Flask==3.0.0
+   - python-docx==1.1.0
+   - pypdf==3.17.4
+   - docx2pdf==0.1.8
+   - Werkzeug==3.0.1
+
+6. README.md (~400 lines)
+   - Complete documentation
+   - Installation instructions
+   - Usage guide with examples
+   - Troubleshooting section
+   - Technology stack details
+
+7. QUICKSTART.md
+   - Condensed setup guide
+   - Essential commands only
+   - Common issues and fixes
+   - Test run instructions
+
+8. USAGE_EXAMPLES.md
+   - 6 detailed usage scenarios
+   - Best practices guide
+   - Common use cases
+   - Error prevention tips
+
+9. PROJECT_OVERVIEW.md
+   - Technical architecture
+   - Security features
+   - UI/UX design decisions
+   - Future enhancements
+   - Deployment options
+
+10. sample_document.docx
+    - 6-page test document
+    - Multiple sections
+    - Various content types
+    - Ready for immediate testing
+
+11. create_sample.py
+    - Helper script to generate sample document
+    - Uses python-docx library
+    - Creates structured multi-page document
+
+==============================================
+Key Technologies:
+-----------------
+Backend:  Python 3.7+, Flask, pypdf, python-docx, docx2pdf
+Frontend: HTML5, CSS3, Vanilla JavaScript (no frameworks)
+Design:   Modern gradient UI with smooth animations
+Testing:  Includes sample document for immediate testing
+
+==============================================
+Getting Started:
+----------------
+1. Install dependencies: pip install -r requirements.txt
+2. Run server: python app.py
+3. Open browser: http://localhost:5000
+4. Upload sample_document.docx and test!
+
+==============================================
+

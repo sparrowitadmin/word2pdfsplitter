@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word to PDF Splitter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📄 Word to PDF Splitter</h1>
+            <p>Upload a Word document and split it into multiple PDF files</p>
+        </header>
+
+        <!-- Step 1: File Upload -->
+        <section class="card" id="upload-section">
+            <h2>Step 1: Upload Word Document</h2>
+            <div class="upload-area" id="upload-area">
+                <input type="file" id="file-input" accept=".doc,.docx" hidden>
+                <div class="upload-content">
+                    <div class="upload-icon">📁</div>
+                    <p class="upload-text">Click or drag and drop to upload</p>
+                    <p class="upload-subtext">Supports .doc and .docx files (max 50MB)</p>
+                    <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">
+                        Choose File
+                    </button>
+                </div>
+            </div>
+            <div id="upload-status" class="status-message"></div>
+        </section>
+
+        <!-- Step 2: Configure Splits -->
+        <section class="card" id="config-section" style="display: none;">
+            <h2>Step 2: Configure PDF Splits</h2>
+            <div class="info-box">
+                <p><strong>Document Pages:</strong> <span id="page-count">0</span></p>
+            </div>
+
+            <div class="table-controls">
+                <button class="btn btn-secondary" onclick="addSplitRow()">+ Add Split</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table id="splits-table">
+                    <thead>
+                        <tr>
+                            <th>Output File Name</th>
+                            <th>Start Page</th>
+                            <th>End Page</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="splits-tbody">
+                        <!-- Rows will be added dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Step 3: Select Output Folder -->
+        <section class="card" id="output-section" style="display: none;">
+            <h2>Step 3: Select Output Folder</h2>
+            <div class="folder-selector">
+                <label for="output-folder">Output Folder Path:</label>
+                <input type="text" id="output-folder" placeholder="Enter or paste folder path" class="folder-input">
+                <p class="help-text">
+                    💡 Example (Mac): /Users/username/Documents/PDFs<br>
+                    💡 Example (Windows): C:\Users\username\Documents\PDFs
+                </p>
+            </div>
+
+            <button class="btn btn-success btn-large" onclick="processSplits()">
+                Generate PDF Files
+            </button>
+        </section>
+
+        <!-- Results Section -->
+        <section class="card" id="results-section" style="display: none;">
+            <h2>Results</h2>
+            <div id="results-content"></div>
+            <button class="btn btn-primary" onclick="resetApp()">Start Over</button>
+        </section>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loading-overlay" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>Word to PDF Splitter • Built with Flask and Python</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
+

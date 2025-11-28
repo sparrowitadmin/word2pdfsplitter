@@ -1,0 +1,295 @@
+// Global variables
+let sessionId = null;
+let totalPages = 0;
+
+// File input handling
+const fileInput = document.getElementById('file-input');
+const uploadArea = document.getElementById('upload-area');
+const uploadStatus = document.getElementById('upload-status');
+
+fileInput.addEventListener('change', handleFileSelect);
+
+// Drag and drop
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        fileInput.files = files;
+        handleFileSelect();
+    }
+});
+
+// Handle file selection
+function handleFileSelect() {
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        return;
+    }
+    
+    // Validate file type
+    const validExtensions = ['.doc', '.docx'];
+    const fileName = file.name.toLowerCase();
+    const isValid = validExtensions.some(ext => fileName.endsWith(ext));
+    
+    if (!isValid) {
+        showStatus('error', 'Please select a valid Word document (.doc or .docx)');
+        return;
+    }
+    
+    // Validate file size (50MB)
+    if (file.size > 50 * 1024 * 1024) {
+        showStatus('error', 'File size exceeds 50MB limit');
+        return;
+    }
+    
+    uploadFile(file);
+}
+
+// Upload file to server
+async function uploadFile(file) {
+    showLoading(true);
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            sessionId = data.session_id;
+            totalPages = data.page_count;
+            
+            showStatus('success', data.message);
+            
+            // Show configuration section
+            document.getElementById('config-section').style.display = 'block';
+            document.getElementById('output-section').style.display = 'block';
+            document.getElementById('page-count').textContent = totalPages;
+            
+            // Add initial split row
+            addSplitRow();
+            
+            // Scroll to config section
+            document.getElementById('config-section').scrollIntoView({ behavior: 'smooth' });
+        } else {
+            showStatus('error', data.error || 'Upload failed');
+        }
+    } catch (error) {
+        showStatus('error', 'Network error: ' + error.message);
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Add a new split row to the table
+function addSplitRow() {
+    const tbody = document.getElementById('splits-tbody');
+    const rowCount = tbody.rows.length;
+    
+    const row = tbody.insertRow();
+    row.innerHTML = `
+        <td><input type="text" placeholder="output_${rowCount + 1}" value="output_${rowCount + 1}.pdf"></td>
+        <td><input type="number" min="1" max="${totalPages}" value="1" onchange="validatePageRange(this)"></td>
+        <td><input type="number" min="1" max="${totalPages}" value="${totalPages}" onchange="validatePageRange(this)"></td>
+        <td><button class="btn btn-danger" onclick="removeSplitRow(this)">Remove</button></td>
+    `;
+}
+
+// Remove a split row
+function removeSplitRow(button) {
+    const row = button.closest('tr');
+    row.remove();
+}
+
+// Validate page range
+function validatePageRange(input) {
+    const value = parseInt(input.value);
+    const min = parseInt(input.min);
+    const max = parseInt(input.max);
+    
+    if (value < min) {
+        input.value = min;
+    } else if (value > max) {
+        input.value = max;
+    }
+}
+
+// Process splits and generate PDFs
+async function processSplits() {
+    const outputFolder = document.getElementById('output-folder').value.trim();
+    
+    // Validate output folder
+    if (!outputFolder) {
+        alert('Please enter an output folder path');
+        return;
+    }
+    
+    // Get all split configurations
+    const tbody = document.getElementById('splits-tbody');
+    const rows = tbody.rows;
+    
+    if (rows.length === 0) {
+        alert('Please add at least one split configuration');
+        return;
+    }
+    
+    const splits = [];
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const filename = row.cells[0].querySelector('input').value.trim();
+        const startPage = row.cells[1].querySelector('input').value;
+        const endPage = row.cells[2].querySelector('input').value;
+        
+        if (!filename) {
+            alert(`Please enter a filename for row ${i + 1}`);
+            return;
+        }
+        
+        splits.push({
+            filename: filename,
+            start_page: parseInt(startPage),
+            end_page: parseInt(endPage)
+        });
+    }
+    
+    // Validate page ranges
+    for (let i = 0; i < splits.length; i++) {
+        const split = splits[i];
+        if (split.start_page < 1 || split.end_page < 1) {
+            alert(`Invalid page range in row ${i + 1}: Pages must be greater than 0`);
+            return;
+        }
+        if (split.start_page > split.end_page) {
+            alert(`Invalid page range in row ${i + 1}: Start page cannot be greater than end page`);
+            return;
+        }
+        if (split.end_page > totalPages) {
+            alert(`Invalid page range in row ${i + 1}: End page exceeds document length (${totalPages} pages)`);
+            return;
+        }
+    }
+    
+    // Send to server
+    showLoading(true);
+    
+    try {
+        const response = await fetch('/process', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                session_id: sessionId,
+                splits: splits,
+                output_folder: outputFolder
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            displayResults(data.results, data.message);
+        } else {
+            alert('Error: ' + (data.error || 'Processing failed'));
+        }
+    } catch (error) {
+        alert('Network error: ' + error.message);
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Display results
+function displayResults(results, message) {
+    const resultsSection = document.getElementById('results-section');
+    const resultsContent = document.getElementById('results-content');
+    
+    // Hide other sections
+    document.getElementById('upload-section').style.display = 'none';
+    document.getElementById('config-section').style.display = 'none';
+    document.getElementById('output-section').style.display = 'none';
+    
+    // Build results HTML
+    let html = `<div class="info-box"><p><strong>${message}</strong></p></div>`;
+    
+    results.forEach(result => {
+        const status = result.status === 'success' ? 'success' : 'error';
+        const icon = result.status === 'success' ? '✅' : '❌';
+        
+        html += `
+            <div class="result-item ${status}">
+                <span class="result-icon">${icon}</span>
+                <div class="result-item-info">
+                    <div class="result-item-title">${result.filename}</div>
+                    <div class="result-item-message">${result.message}</div>
+                </div>
+            </div>
+        `;
+    });
+    
+    resultsContent.innerHTML = html;
+    resultsSection.style.display = 'block';
+    
+    // Scroll to results
+    resultsSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Reset application
+function resetApp() {
+    // Clear session
+    sessionId = null;
+    totalPages = 0;
+    
+    // Reset file input
+    fileInput.value = '';
+    
+    // Clear splits table
+    document.getElementById('splits-tbody').innerHTML = '';
+    
+    // Clear output folder
+    document.getElementById('output-folder').value = '';
+    
+    // Reset status
+    uploadStatus.className = 'status-message';
+    uploadStatus.textContent = '';
+    uploadStatus.style.display = 'none';
+    
+    // Show upload section, hide others
+    document.getElementById('upload-section').style.display = 'block';
+    document.getElementById('config-section').style.display = 'none';
+    document.getElementById('output-section').style.display = 'none';
+    document.getElementById('results-section').style.display = 'none';
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Show status message
+function showStatus(type, message) {
+    uploadStatus.className = `status-message ${type}`;
+    uploadStatus.textContent = message;
+    uploadStatus.style.display = 'block';
+}
+
+// Show/hide loading overlay
+function showLoading(show) {
+    document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
+}
+
