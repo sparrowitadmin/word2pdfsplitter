@@ -47,3 +47,7 @@ instance/
 uploads/
 temp/
 
+# Output PDFs (generated files)
+*.pdf
+!sample_*.pdf
+

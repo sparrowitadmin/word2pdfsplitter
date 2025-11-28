@@ -298,7 +298,13 @@ def process_splits():
         return jsonify({'error': f'Unexpected error: {str(e)}'}), 500
 
 if __name__ == '__main__':
+    # Get port from environment variable (for deployment platforms)
+    port = int(os.environ.get('PORT', 5001))
+    debug = os.environ.get('DEBUG', 'False').lower() == 'true'
+    
     print("Starting Word to PDF Splitter Application")
-    print("Open your browser and navigate to: http://localhost:5001")
-    app.run(debug=True, port=5001, host='127.0.0.1')
+    if debug:
+        print(f"Open your browser and navigate to: http://localhost:{port}")
+    
+    app.run(debug=debug, port=port, host='0.0.0.0')
 
